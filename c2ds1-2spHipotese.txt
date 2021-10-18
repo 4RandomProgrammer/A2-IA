@@ -1,0 +1,10 @@
+c2sp1s1 0
+c2sp1s2 0
+c2sp1s3 1
+c2sp1s4 1
+c2sp1s5 1
+c2sp1s6 1
+c2sp1s7 1
+c2sp1s8 1
+c2sp1s9 1
+c2sp1s10 1
