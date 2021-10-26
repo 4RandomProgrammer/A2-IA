@@ -1,0 +1,5 @@
+
+*.pyc
+*.pyc
+__pycache__/kmedia.cpython-39.pyc
+__pycache__/aglomerativo.cpython-39.pyc

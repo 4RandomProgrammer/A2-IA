@@ -3,6 +3,8 @@ import numpy as np
 import pandas as pd
 import copy
 
+clu_id = 0 #variavel global, pq antes tava resetando com a função.
+
 # --------------------- Classes --------------------- #
 class Objeto:
     def __init__(self, i, d1, d2):
@@ -60,6 +62,7 @@ class ParObjetos:
         return self.dist
         
 # ----------------- Funcoes internas ----------------- #
+
 def calculo_distancias_iniciais(qtd_obj, objetos):
     # Instanciamento dos pares de objetos, evitando repeticoes...
     pares = []  #pares de clusters (inicialmente cada cluster so tem um objeto)
@@ -70,50 +73,66 @@ def calculo_distancias_iniciais(qtd_obj, objetos):
                 pares.append(ParObjetos(objetos[i], objetos[j]))
     
     pares.sort(key=lambda x: x.dist)
-    for i in range(len(pares)):
-        print(f"par({pares[i].getObjeto(0).getId()}, {pares[i].getObjeto(1).getId()}): dist = {pares[i].dist}")
+
+    # for i in range(len(pares)):
+    #     print(f"par({pares[i].getObjeto(0).getId()}, {pares[i].getObjeto(1).getId()}): dist = {pares[i].dist}")
     return pares
 
+
 def single_link(pares, objetos):
+
     particoes = [[] for _ in range(len(pares))]
-    clu_id = 0
     temp = 0
+    clu_id = 0 #variavel global, pq antes tava resetando com a função.
+    n_clusters = len(objetos)
+
     for k in range(len(pares)):
 
         obj1 = pares[k].getObjeto(0)
         obj2 = pares[k].getObjeto(1)
 
-        print(f"-- {k=} --")
-        for m in range(len(objetos)):
-            print(f"{objetos[m].getId()} {objetos[m].getClusterID()}")
-        print(f"----")
+        print(f"obj1: {obj1.getId()}, {obj1.getClusterID()}, obj 2 : {obj2.getId()}, {obj2.getClusterID()}")
 
-        if obj1.getClusterID() == obj2.getClusterID():
-            pass
-        particoes[k] = copy.deepcopy(objetos)
+
+        #Condição de parada para fazer os grupos finais
+        if n_clusters == 2:
+            break
+        
+        #Essa condição precisa existir para ele n contar valores que já ocorreram.
+        if obj1.getClusterID() == obj2.getClusterID() and (obj1.getClusterID() is not None and obj2.getClusterID() is not None):
+            continue
+
         if obj1.getClusterID() is None and obj2.getClusterID() is None:
+            n_clusters -= 1
             obj1.setClusterID(clu_id)
             obj2.setClusterID(clu_id)
             clu_id += 1
+
         elif not (obj1.getClusterID() is None) and not (obj2.getClusterID() is None):
+
+            n_clusters -= 1
             substituto = obj1.getClusterID()
             substituido = obj2.getClusterID()
             for j in range(len(objetos)):
                 if objetos[j].getClusterID() == substituido:
                     objetos[j].setClusterID(substituto)
+            
+
         else:
             if obj1.getClusterID() is None:
+                n_clusters -= 1
                 obj1.setClusterID(obj2.getClusterID())
-            else:
+            elif obj2.getClusterID() is None:
+                n_clusters -= 1
                 obj2.setClusterID(obj1.getClusterID())
 
-        temp += 1
         
     for m in range(len(objetos)):
         print(f"{objetos[m].getId()} {objetos[m].getClusterID()}")
     print(f"----")
     
-    return particoes
+
+    #return particoes
 # ------------------------------------------------------ #
 
 def hierarquico_aglomerativo(dados, kmin, kmax):
