@@ -58,7 +58,7 @@ class ParObjetos:
 
     def getDist(self):
         return self.dist
-
+        
 # ----------------- Funcoes internas ----------------- #
 def calculo_distancias_iniciais(qtd_obj, objetos):
     # Instanciamento dos pares de objetos, evitando repeticoes...
@@ -70,16 +70,27 @@ def calculo_distancias_iniciais(qtd_obj, objetos):
                 pares.append(ParObjetos(objetos[i], objetos[j]))
     
     pares.sort(key=lambda x: x.dist)
-    # for i in range(len(pares)):
-    #     print(f"par({pares[i].getObjeto(0).getId()}, {pares[i].getObjeto(1).getId()}): dist = {pares[i].dist}")
+    for i in range(len(pares)):
+        print(f"par({pares[i].getObjeto(0).getId()}, {pares[i].getObjeto(1).getId()}): dist = {pares[i].dist}")
     return pares
 
 def single_link(pares, objetos):
     particoes = [[] for _ in range(len(pares))]
     clu_id = 0
-    for k in range(len(objetos) - 1):
+    temp = 0
+    for k in range(len(pares)):
+
         obj1 = pares[k].getObjeto(0)
         obj2 = pares[k].getObjeto(1)
+
+        print(f"-- {k=} --")
+        for m in range(len(objetos)):
+            print(f"{objetos[m].getId()} {objetos[m].getClusterID()}")
+        print(f"----")
+
+        if obj1.getClusterID() == obj2.getClusterID():
+            pass
+        particoes[k] = copy.deepcopy(objetos)
         if obj1.getClusterID() is None and obj2.getClusterID() is None:
             obj1.setClusterID(clu_id)
             obj2.setClusterID(clu_id)
@@ -96,26 +107,37 @@ def single_link(pares, objetos):
             else:
                 obj2.setClusterID(obj1.getClusterID())
 
-        particoes[k].append(objetos)
-        for m in range(len(objetos)):
-            print(f"{objetos[m].getId()} {objetos[m].getClusterID()}")
-        print("----")
+        temp += 1
+        
+    for m in range(len(objetos)):
+        print(f"{objetos[m].getId()} {objetos[m].getClusterID()}")
+    print(f"----")
+    
     return particoes
 # ------------------------------------------------------ #
 
 def hierarquico_aglomerativo(dados, kmin, kmax):
     tam = len(dados)
     objetos = []
-    clusters = []
     for i in range(tam):
         objetos.append(Objeto(dados.loc[i][0], dados.loc[i][1], dados.loc[i][2]))
     
     pares = calculo_distancias_iniciais(tam, objetos)
-    single_link(pares, objetos)
+    particoes = single_link(pares, objetos)
+    # for k in range(kmin, kmax):
+    #     print(f"k={k + 1}:")
+    #     temp_id = len(objetos) - 1
+    #     for i in range(len(particoes[k])):
+    #         if particoes[k][i].getClusterID() is None:
+    #             print(f"{particoes[k][i].getId()}: {temp_id}")
+    #             temp_id -= 1
+    #         else:
+    #             print(f"{particoes[k][i].getId()}: {particoes[k][i].getClusterID()}")
+    #     # print('\n')
 
 def main():
     c2ds1 = pd.read_csv("dados.txt", sep="\t")
-    hierarquico_aglomerativo(c2ds1, 0, 0)
+    hierarquico_aglomerativo(c2ds1, 0, 6)
 
 if __name__ == '__main__':
     main()
