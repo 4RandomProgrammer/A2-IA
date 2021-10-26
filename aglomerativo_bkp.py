@@ -6,7 +6,7 @@ import copy
 # --------------------- Classes --------------------- #
 class Objeto:
     def __init__(self, i, d1, d2):
-        self.clu_id = None
+        self.cluster = None
         self.id = i
         self.atributos = []
         self.atributos.append(d1)
@@ -23,16 +23,17 @@ class Objeto:
     def getId(self):
         return self.id
 
-    def getClusterID(self):
-        return self.clu_id
+    def getCluster(self):
+        return self.cluster
 
-    def setClusterID(self, i):
-        self.clu_id = i
+    def setCluster(self, i):
+        self.cluster = i
 
 class Cluster:
-    def __init__(self, i):
+    def __init__(self, i, o):
         self.id = i
         self.obj = []
+        self.obj.append(o)   #cada cluster começa com apenas 1 objeto
 
     def __eq__(self, other):
         return self.obj[0].__eq__(other.getObjeto(0))
@@ -76,29 +77,31 @@ def calculo_distancias_iniciais(qtd_obj, objetos):
 
 def single_link(pares, objetos):
     particoes = [[] for _ in range(len(pares))]
+    # for x in range(len(pares)):
+    #     print(pares[x].getDist())
     clu_id = 0
-    for k in range(len(objetos) - 1):
+    for k in range(len(objetos)):
         obj1 = pares[k].getObjeto(0)
         obj2 = pares[k].getObjeto(1)
-        if obj1.getClusterID() is None and obj2.getClusterID() is None:
-            obj1.setClusterID(clu_id)
-            obj2.setClusterID(clu_id)
+        if obj1.getCluster() is None and obj2.getCluster() is None:
+            obj1.setCluster(clu_id)
+            obj2.setCluster(clu_id)
             clu_id += 1
-        elif not (obj1.getClusterID() is None) and not (obj2.getClusterID() is None):
-            substituto = obj1.getClusterID()
-            substituido = obj2.getClusterID()
+        elif not (obj1.getCluster() is None) and not (obj2.getCluster() is None):
+            substituto = obj1.getCluster()
+            substituido = obj2.getCluster()
             for j in range(len(objetos)):
-                if objetos[j].getClusterID() == substituido:
-                    objetos[j].setClusterID(substituto)
+                if objetos[j].getCluster() == substituido:
+                    objetos[j].setCluster(substituto)
         else:
-            if obj1.getClusterID() is None:
-                obj1.setClusterID(obj2.getClusterID())
+            if obj1.getCluster() is None:
+                obj1.setCluster(obj2.getCluster())
             else:
-                obj2.setClusterID(obj1.getClusterID())
-
+                obj2.setCluster(obj1.getCluster())
+                
         particoes[k].append(objetos)
         for m in range(len(objetos)):
-            print(f"{objetos[m].getId()} {objetos[m].getClusterID()}")
+            print(f"{objetos[m].getId()} {objetos[m].getCluster()}")
         print("----")
     return particoes
 # ------------------------------------------------------ #
@@ -109,6 +112,7 @@ def hierarquico_aglomerativo(dados, kmin, kmax):
     clusters = []
     for i in range(tam):
         objetos.append(Objeto(dados.loc[i][0], dados.loc[i][1], dados.loc[i][2]))
+        clusters.append(Cluster(i, objetos[i]))
     
     pares = calculo_distancias_iniciais(tam, objetos)
     single_link(pares, objetos)
